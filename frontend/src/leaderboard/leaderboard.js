@@ -57,19 +57,16 @@ class Leaderboard extends Component {
                 graphInput[index][id] = val;
             })
         });
-
-        console.log(models);
-        console.log(graphInput);
         this.setState((prevState) => ({
             models: models,
-
+            graphInput: graphInput
         }));
     }
 
     render() {
         return(
             <div className="graph-container">
-                <p>Gello?</p>
+                <Leadergraph className="graph" models={this.state.models} data={this.state.graphInput} /> 
             </div>
         );
     }
