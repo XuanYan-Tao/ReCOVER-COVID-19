@@ -8,7 +8,10 @@ class Leaderboard extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {summary: []};
+        this.state = {
+            models: [],
+            graphInput: []
+        };
     }
 
     componentDidMount = () => {
@@ -21,8 +24,8 @@ class Leaderboard extends Component {
     }
 
     updateData = (result) => {
-        console.log(result.data);
-        const modelsSummary = result.data.map(csvRow => {
+        const graphInput = []
+        const models = result.data.map((csvRow, index) => {
             const model = {id: "", data: []};
             for (const col in csvRow) {
                 if (col === "") {
@@ -31,15 +34,36 @@ class Leaderboard extends Component {
                 && csvRow[col] != null 
                 && csvRow[col] != "") {
                     model.data.push({
-                        "x": col.substring(18, col.length - 1),
-                        "y": parseInt(csvRow[col])
+                        x: col.substring(18, col.length - 1),
+                        y: parseInt(csvRow[col])
                     });
+                
+                } 
+                // Initialize the Y-axis (date) of graph input.
+                if (index == 0 
+                    && col.indexOf("mean_sq_abs_error_") >= 0) {
+                        graphInput.push({name: col.substring(18, col.length - 1)})
                 }
             }
             return model;
         });
-        console.log(modelsSummary);
-        this.setState({summary: modelsSummary.splice(0, 5)});
+        const startingDate = new Date(graphInput[0].name.substring(0, 10));
+        models.forEach(model => {
+            const id = model.id;
+            model.data.forEach(datapoint => {
+                const date = datapoint.x;
+                const val = datapoint.y;
+                const index = (new Date(date.substring(0, 10)) - startingDate) / 604800000;
+                graphInput[index][id] = val;
+            })
+        });
+
+        console.log(models);
+        console.log(graphInput);
+        this.setState((prevState) => ({
+            models: models,
+
+        }));
     }
 
     render() {
