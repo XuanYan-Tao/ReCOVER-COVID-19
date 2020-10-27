@@ -2,15 +2,14 @@ import React, { Component } from "react";
 import Papa from "papaparse";
 import Leadergraph from "./leadergraph";
 import "../covid19app.css";
-// import "./leaderboard.css";
+import "./leaderboard.css";
 import summaryCSV from "./summary/summary_4_weeks_ahead_states.csv";
 class Leaderboard extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            models: [],
-            graphInput: []
+            fourWeeksAheadSummary: [],
         };
     }
 
@@ -24,8 +23,7 @@ class Leaderboard extends Component {
     }
 
     updateData = (result) => {
-        const graphInput = []
-        const models = result.data.map((csvRow, index) => {
+        const modelsSummary = result.data.map((csvRow, index) => {
             const model = {id: "", data: []};
             for (const col in csvRow) {
                 if (col === "") {
@@ -37,36 +35,20 @@ class Leaderboard extends Component {
                         x: col.substring(18, col.length - 1),
                         y: parseInt(csvRow[col])
                     });
-                
                 } 
-                // Initialize the Y-axis (date) of graph input.
-                if (index == 0 
-                    && col.indexOf("mean_sq_abs_error_") >= 0) {
-                        graphInput.push({name: col.substring(18, col.length - 1)})
-                }
             }
             return model;
         });
-        const startingDate = new Date(graphInput[0].name.substring(0, 10));
-        models.forEach(model => {
-            const id = model.id;
-            model.data.forEach(datapoint => {
-                const date = datapoint.x;
-                const val = datapoint.y;
-                const index = (new Date(date.substring(0, 10)) - startingDate) / 604800000;
-                graphInput[index][id] = val;
-            })
+
+        this.setState({
+            fourWeeksAheadSummary: modelsSummary
         });
-        this.setState((prevState) => ({
-            models: models,
-            graphInput: graphInput
-        }));
     }
 
     render() {
         return(
             <div className="graph-container">
-                <Leadergraph className="graph" models={this.state.models} data={this.state.graphInput} /> 
+                <Leadergraph className="graph" data={this.state.fourWeeksAheadSummary} /> 
             </div>
         );
     }
