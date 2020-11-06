@@ -25,11 +25,13 @@ STATIC_MODELS = [
     StaticModel(
         quarantined_prediction_paths=[
             "../results/forecasts/global_forecasts_current_0.csv",
-            "../results/forecasts/us_forecasts_current_0.csv"
+            "../results/forecasts/us_forecasts_current_0.csv",
+            "../results/forecasts/county_forecasts_quarantine_0.csv"
         ],
         released_prediction_paths=[
             "../results/forecasts/global_forecasts_released_0.csv",
-            "../results/forecasts/us_forecasts_released_0.csv"
+            "../results/forecasts/us_forecasts_released_0.csv",
+            "../results/forecasts/county_forecasts_released_avg_0.csv"
         ],
         restricted_prediction_paths=[
             "../results/forecasts/global_forecasts_restricted_0.csv",
@@ -146,11 +148,13 @@ STATIC_DEATH_MODELS = [
     StaticModel(
         quarantined_prediction_paths=[
             "../results/forecasts/global_deaths_current_0.csv",
-            "../results/forecasts/us_deaths_current_0.csv"
+            "../results/forecasts/us_deaths_current_0.csv",
+            "../results/forecasts/county_deaths_quarantine_0.csv"
         ],
         released_prediction_paths=[
             "../results/forecasts/global_deaths_released_0.csv",
-            "../results/forecasts/us_deaths_released_0.csv"
+            "../results/forecasts/us_deaths_released_0.csv",
+            "../results/forecasts/county_deaths_released_0.csv"
         ],
         restricted_prediction_paths=[
             "../results/forecasts/global_deaths_restricted_0.csv",
@@ -292,6 +296,9 @@ def load_csv(apps, path):
                 country = row[1]
                 state = ''
             elif 'us' in path:
+                country = 'US'
+                state = row[1]
+            elif 'county' in path:
                 country = 'US'
                 state = row[1]
             else:
