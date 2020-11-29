@@ -82,6 +82,7 @@ class NewScoreGraph extends Component {
         let {data, date, scoreType} = this.props;
         //map data
         const chartData = this.parseData(data, scoreType);
+        console.log(chartData);
         //areas and line color
         const areas = Object.keys(data);
         let colors = [];

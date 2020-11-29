@@ -1,74 +1,132 @@
-import React, { PureComponent } from "react";
-import { ResponsiveLine } from "@nivo/line";
+import React, { Component } from "react";
+import {
+    red,
+    gold,
+    lime,
+    cyan,
+    geekblue,
+    purple,
+    magenta
+  } from "@ant-design/colors";
 
-const Leadergraph = props => {
-  return (
-    <ResponsiveLine
-      data={props.data}
-      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-      xScale={{ type: "point" }}
-      yScale={{
-        type: "linear",
-        min: "auto",
-        max: "auto",
-        stacked: true,
-        reverse: false,
-      }}
-      yFormat=" >-.2f"
-      axisTop={null}
-      axisRight={null}
-      axisBottom={{
-        orient: "bottom",
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: "transportation",
-        legendOffset: 36,
-        legendPosition: "middle",
-      }}
-      axisLeft={{
-        orient: "left",
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: "count",
-        legendOffset: -40,
-        legendPosition: "middle",
-      }}
-      pointSize={10}
-      pointColor={{ theme: "background" }}
-      pointBorderWidth={2}
-      pointBorderColor={{ from: "serieColor" }}
-      pointLabelYOffset={-12}
-      useMesh={true}
-      legends={[
+import { 
+    LineChart, 
+    Line,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Tooltip,
+    Legend,
+    Label,
+    ErrorBar,
+    ReferenceLine
+} from 'recharts';
+
+function getLineColor(index) {
+    const colors = [
+        red,
+        gold,
+        lime,
+        cyan,
+        geekblue,
+        purple,
+        magenta
+    ];
+
+    return colors[index % colors.length];
+}
+
+
+
+class Leadergraph extends Component {
+    parseData = (data, errorType) => { 
+        const firstModel = Object.keys(data)[0];
+        if (data[firstModel])
         {
-          anchor: "bottom-right",
-          direction: "column",
-          justify: false,
-          translateX: 100,
-          translateY: 0,
-          itemsSpacing: 0,
-          itemDirection: "left-to-right",
-          itemWidth: 80,
-          itemHeight: 20,
-          itemOpacity: 0.75,
-          symbolSize: 12,
-          symbolShape: "circle",
-          symbolBorderColor: "rgba(0, 0, 0, .5)",
-          effects: [
+            if (errorType === "rmse")
             {
-              on: "hover",
-              style: {
-                itemBackground: "rgba(0, 0, 0, .03)",
-                itemOpacity: 1,
-              },
-            },
-          ],
-        },
-      ]}
-    />
-  );
-};
+                const chartData = data[firstModel].rmseData.map((value,idx) => {
+                    let date = value.x.split("_")[0].substring(5)+ "_" + value.x.split("_")[1].substring(5);
+                    let dataSet = {name: date};
+                    if (!isNaN(value.y) && value.y !== "")
+                    {
+                      dataSet[Object.keys(data)[0]] = value.y;
+                    }
+                    for (let i = 1; i < Object.keys(data).length; ++i)
+                    {
+                        let error = data[Object.keys(data)[i]].rmseData[idx].y;
+                        if (!isNaN(error) && error !== "")
+                        {
+                          dataSet[Object.keys(data)[i]] = error;
+                        }  
+                    }
+                    return dataSet
+                });
+                return chartData;
+            }
+            else
+            {
+              const chartData = data[firstModel].maeData.map((value,idx) => {
+                let date = value.x.split("_")[0].substring(5)+ "_" + value.x.split("_")[1].substring(5)
+                let dataSet = {name: date};
+                if (!isNaN(value.y) && value.y !== "")
+                    {
+                      dataSet[Object.keys(data)[0]] = value.y;
+                    }
+                    for (let i = 1; i < Object.keys(data).length; ++i)
+                    {
+                        let error = data[Object.keys(data)[i]].maeData[idx].y;
+                        if (!isNaN(error) && error !== "")
+                        {
+                          dataSet[Object.keys(data)[i]] = error;
+                        }  
+                    }
+                    return dataSet
+              });
+              return chartData;
+            }
+        }
+    }
+    
+    render(){
+        let {data, errorType} = this.props;
+        //map data
+        const chartData = this.parseData(data, errorType);
+        console.log(data)
+        console.log(chartData);
+        //areas and line color
+        const models = Object.keys(data);
+        let colors = [];
+        models.map((model, idx)=>{
+            let strokeColor = getLineColor(idx);
+            colors.push(strokeColor);
+            return 0;
+        });
+        let lines = [];
+        for (let i = 0; i < models.length; ++i)
+        {
+            lines.push(
+                <Line type="monotone" key={i} dataKey={models[i]} stroke={colors[i][3]} strokeWidth={5}/>
+            )
+        }
+        return(
+            <LineChart width={1400} height={300} data={chartData}
+            margin={{ top: 40, right: 30, left: 40, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis>
+                {errorType==="rmse"?
+                <Label value="Root Mean Square Error" dy = {90} position="insideLeft" angle={-90} fontSize={15} />
+                 :
+                <Label value="Mean Absolute Error" dy = {45} position="insideLeft" angle={-90} fontSize={15} />
+                }
+            </YAxis>
+            <Tooltip />
+            <Legend iconSize={40}/>
+            {lines}
+            </LineChart>
+        );
+    }
+}
 
 export default Leadergraph;

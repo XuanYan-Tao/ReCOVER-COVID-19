@@ -242,6 +242,7 @@ class ScorePage extends PureComponent{
             errorDescription,
             scoreType
           } = this.state;
+        console.log(mainGraphData);
         const countryOptions = areasList
         .filter(area => !this.areaIsSelected(area))
         .map(areaToStr)
