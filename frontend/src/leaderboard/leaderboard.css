@@ -1,5 +1,11 @@
+.leader-page-wrapper{
+    margin: 2%;
+}
+.leader-page-wrapper h2{
+    text-align: center;
+}
 .graph-container {
-    margin-top: 2%;
+    margin-top: 1%;
     width: 100vw;
     height: 100vh;
 }
@@ -7,6 +13,16 @@
 .class {
     width: 100vw;
     height: 100vw;
+}
+
+.leaderboard {
+    background: #ffffff;
+    border: solid 1px #dedede;
+    margin-top: 1.5em;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 28px;
+    padding: 20px 20px;
 }
 /*
 .grid {
@@ -24,16 +40,6 @@ h2.title {
     padding-bottom: 10px;
     text-align: center;
     font-size: 18px;
-}
-
-.leaderboard {
-    background: #ffffff;
-    border: solid 1px #dedede;
-    margin-top: 1.5em;
-    margin-left: 5%;
-    margin-right: 5%;
-    margin-bottom: 28px;
-    padding: 20px 20px;
 }
 
 .graph {
