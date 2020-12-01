@@ -66,7 +66,7 @@ class NavBar extends Component {
                     <Menu.Item key="forecast">COVID-19 Forecast</Menu.Item>
                     <Menu.Item key="quarantine-score">Reproduction Number</Menu.Item>
                     <Menu.Item key="highlights">Highlights</Menu.Item>
-                    <Menu.Item key="leaderboard">Leaderboard</Menu.Item>
+                    <Menu.Item key="leaderboard">Evaluation</Menu.Item>
                     <Menu.Item key="information">About Us</Menu.Item>
                 </Menu>
             </Col>
