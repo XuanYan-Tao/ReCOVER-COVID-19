@@ -18,7 +18,9 @@ for un_id = 1:length(un_array)
     
     un = un_array(un_id); % Select the ratio of true cases to reported cases. 1 for default.
     if un == 0
-        un = load(['../results/unreported/' prefix 'unreported.txt']); % Load from p[reviously learned values
+        un = un_from_file; % Load from previously learned values
+        no_un_idx = un.*data_4(:, end)./popu > 0.2;
+        un(no_un_idx) = 1;
     end
     % Current trend prediction
     beta_after = var_ind_beta_un(data_4_s(:, 1:T_full), passengerFlow*0, best_param_list(:, 3)*0.1, best_param_list(:, 1), un, popu, best_param_list(:, 2), 0, compute_region);
@@ -37,7 +39,7 @@ for un_id = 1:length(un_array)
     infec_data_restricted = [data_4_s(:, 1:T_full), infec_restricted_un];
     base_deaths = deaths(:, T_full);
     
-    [death_rates] = var_ind_deaths(data_4_s, deaths_s, dalpha, dk, djp, dwin, 0, compute_region);
+    [death_rates] = var_ind_deaths(data_4_s, deaths_s, dalpha, dk, djp, dwin, 0, compute_region, lags);
     disp('trained deaths');
     
     [pred_deaths] = var_simulate_deaths(infec_data, death_rates, dk, djp, dhorizon, base_deaths, T_full-1);

@@ -21,6 +21,7 @@ dk = best_death_hyperparam(:, 1);
 djp = best_death_hyperparam(:, 2);
 dwin = best_death_hyperparam(:, 3);
 dalpha = 1;
+lags = best_death_hyperparam(:, 4);
 
 bad_idx = data_4(:, end) < 1 | popu < 1 | data_4(:, end) > popu ; % Only predict for counties with at least one case
 lowidx = data_4(:, 60) < 50; % Note the regions with unreliable data on reference day
@@ -35,7 +36,7 @@ smooth_factor = 14;
 data_4_s = [data_4(:, 1) cumsum(movmean(diff(data_4')', smooth_factor, 2), 2)];
 deaths_s = [deaths(:, 1) cumsum(movmean(diff(deaths')', smooth_factor, 2), 2)];
 
-no_un_idx = data_4(:, end)./popu > 0.1; % Treat them as if there are no unreported cases, forcasts are likely not affected by this
+no_un_idx = data_4(:, end)./popu > 0.2; % Treat them as if there are no unreported cases, forcasts are likely not affected by this
 
 
 %%
@@ -50,9 +51,12 @@ for un_id = 1:length(un_array)
     if un_array(un_id) > 0
         un(:) = un_array(un_id); % Select the ratio of true cases to reported cases. 1 for default.
     else
-        un = load('../results/unreported/countiesunreported.txt');
+        xx = load(['../results/unreported/' prefix '_all_unreported.csv']);
+        un_from_file = xx(2:end, end);
+        un = un_from_file;
+        no_un_idx = un.*data_4(:, end)./popu > 0.2;
+        un(no_un_idx) = 1;
     end
-    un(no_un_idx) = 1;
     %beta_notravel = var_ind_beta_un(data_4_s(:, 1:reference_day), passengerFlow, best_param_list_no(:, 3)*0.1, best_param_list_no(:, 1), un, popu, best_param_list_no(:, 2), 0, compute_region);
     beta_after = var_ind_beta_un(data_4_s(:, 1:T_full), passengerFlow, best_param_list(:, 3)*0.1, best_param_list(:, 1), un, popu, best_param_list(:, 2), 0, compute_region);
     disp('trained reported cases');
@@ -75,7 +79,7 @@ for un_id = 1:length(un_array)
     %infec_data_released = [data_4_s(:, 1:T_full), infec_released_f_un];
     base_deaths = deaths(:, T_full);
     
-    [death_rates] = var_ind_deaths(data_4_s, deaths_s, dalpha, dk, djp, dwin, 0, compute_region);
+    [death_rates] = var_ind_deaths(data_4_s, deaths_s, dalpha, dk, djp, dwin, 0, compute_region, lags);
     disp('trained deaths');
     
     [pred_deaths] = var_simulate_deaths(infec_data, death_rates, dk, djp, dhorizon, base_deaths, T_full-1);
